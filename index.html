@@ -3,13 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Website</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Forex Chart Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f0f0f0;
+    }
+    input[type="file"] {
+      margin: 20px 0;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to My Website</h1>
-  <p>This is my first live site using GitHub and Render!</p>
 
-  <script src="script.js"></script>
+  <h1>Forex Chart Analyzer</h1>
+  
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="screenshot" accept="image/*" required><br>
+    <button type="submit">Analyze Chart</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      resultDiv.innerText = "Analyzing chart...";
+
+      try {
+        const res = await fetch('/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await res.json();
+        resultDiv.innerHTML = `
+          <p><strong>Market:</strong> ${data.market}</p>
+          <p><strong>Buy Votes:</strong> ${data.buy_votes}</p>
+          <p><strong>Sell Votes:</strong> ${data.sell_votes}</p>
+          <p><strong>Final Signal:</strong> ${data.final_signal}</p>
+          <p><strong>Timeframe:</strong> ${data.timeframe}</p>
+        `;
+      } catch (error) {
+        resultDiv.innerText = "Error analyzing chart: " + error.message;
+      }
+    });
+  </script>
+
 </body>
 </html>
